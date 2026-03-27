@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagaska Music</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'DM Sans',sans-serif;background:#0b0b1f;color:#fff}
+header{padding:16px;display:flex;gap:10px}
+input{flex:1;padding:10px;border-radius:10px;border:none;background:#1a1a3a;color:#fff}
+button{padding:10px 16px;border:none;border-radius:10px;background:#1DB954;color:#000;font-weight:700;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;padding:16px}
+.card{background:#1a1a3a;border-radius:14px;padding:10px;cursor:pointer;transition:.2s}
+.card:hover{transform:translateY(-4px)}
+.card img{width:100%;border-radius:10px}
+.title{font-weight:700;font-size:.9rem}
+.artist{font-size:.7rem;color:#aaa}
+.player{position:fixed;bottom:0;left:0;right:0;background:#111;padding:10px;display:flex;align-items:center;gap:10px}
+.player img{width:50px;height:50px;border-radius:8px}
+</style>
+</head>
+<body>
+<header>
+<input id="q" placeholder="Cari lagu...">
+<button onclick="search()">Cari</button>
+</header>
+
+<div class="grid" id="list"></div>
+
+<div class="player" id="player" style="display:none">
+<img id="pImg">
+<div>
+<div id="pTitle"></div>
+<div id="pArtist" class="artist"></div>
+</div>
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+async function search(){
+  const q = document.getElementById('q').value
+  const res = await fetch(`/api/music?q=${q}`)
+  const data = await res.json()
+
+  const list = document.getElementById('list')
+  list.innerHTML=''
+
+  data.forEach(track=>{
+    const el=document.createElement('div')
+    el.className='card'
+    el.innerHTML=`
+      <img src="${track.cover}">
+      <div class="title">${track.title}</div>
+      <div class="artist">${track.artist}</div>
+    `
+    el.onclick=()=>play(track)
+    list.appendChild(el)
+  })
+}
+
+function play(track){
+  const audio=document.getElementById('audio')
+  audio.src=track.audio
+  audio.play()
+
+  document.getElementById('player').style.display='flex'
+  document.getElementById('pImg').src=track.cover
+  document.getElementById('pTitle').innerText=track.title
+  document.getElementById('pArtist').innerText=track.artist
+}
+</script>
+</body>
+</html>
